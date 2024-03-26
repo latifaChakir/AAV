@@ -1,4 +1,3 @@
-# GitHub Action for Laravel with MySQL and Redisname: API
 on: [push, pull_request]
 jobs:
   laravel:
