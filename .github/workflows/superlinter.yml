@@ -25,5 +25,5 @@ jobs:
       - name: Generate Laravel application key (optional)
         run: php artisan key:generate --env=testing
 
-      - name: Run PHPUnit tests
+      - name: Run PHPUnit test
         run: vendor/bin/phpunit
