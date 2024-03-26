@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.1'
           extensions: mbstring, pdo, pdo_mysql
 
       - name: Install dependencies (optional but recommended)
@@ -26,4 +26,4 @@ jobs:
         run: php artisan key:generate --env=testing
 
       - name: Run PHPUnit tests
-        run: vendor/bin/phpunit 
+        run: vendor/bin/phpunit
