@@ -13,68 +13,74 @@ class UserCrudTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Test creating a user.
-     */
-    public function test_create_user(): void
+    public function test_create_user()
     {
-
-        User::factory()->create([
+        $response = $this->postJson('/api/users', [
             'name' => 'Test User',
             'email' => 'test@example.com',
-            'password' => Hash::make('password'),
+            'password' => 'password',
+            'role_name' => 'user',
         ]);
 
-        $this->assertTrue(User::where('email', 'test@example.com')->exists());
+        $response->assertStatus(200);
+        $this->assertCount(1, User::all());
     }
 
-    // public function test_create_user(): void
-    // {
-
-    //     $user = new User([
-    //         'name' => 'Test User',
-    //         'email' => 'test@example.com',
-    //         'password' => Hash::make('password'),
-    //     ]);
-
-    //     // Assertion pour vérifier les attributs de l'utilisateur
-    //     $this->assertEquals('Test User', $user->name);
-    //     $this->assertEquals('test@example.com', $user->email);
-    //     $this->assertTrue(Hash::check('password', $user->password));
-    // }
-
-
-
-    public function test_update_user(): void
+    public function test_update_user()
     {
-        $users = User::factory()->count(20)->create();
-
-        foreach ($users as $index => $user) {
-            $user->update([
-                'name' => 'Nouveau nom ' . ($index + 1),
-                'email' => 'test' . ($index + 1) . '@example.com',
-                'password' => Hash::make('password' . ($index + 1)),
-            ]);
-        }
-        foreach ($users as $index => $user) {
-            $this->assertEquals('Nouveau nom ' . ($index + 1), $user->fresh()->name);
-            $this->assertEquals('test' . ($index + 1) . '@example.com', $user->fresh()->email);
-
-        }
+        $user = User::create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password',
+        ]);
+        $response = $this->putJson('/api/users/' . $user->id, [
+            "name" => "Test2 User",
+            'email' => 'updated' . $user->id . '@example.com',
+            'password' => 'password',
+            'role_name' => 'user',
+        ]);
+        $response->assertStatus(200);
+        $user->refresh();
+        $this->assertEquals("Test2 User", $user->name);
     }
 
 
     public function test_delete_user(): void
     {
-        $users = User::all();
-        User::destroy($users->pluck('id')->toArray());
-        $this->assertEmpty(User::all(), 'Tous les utilisateurs devraient être supprimés.');
+        $user = User::create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password',
+        ]);
+
+        $response = $this->deleteJson('/api/users/' . $user->id);
+
+        $response->assertStatus(200);
+        $this->assertEmpty(User::find($user->id));
     }
 
-    public function test_show_cars(): void{
-        Voiture::factory()->count(5)->create();
+
+    public function test_show_cars(): void
+    {
+        $voiture = Voiture::create([
+            'marque' => 'marque',
+            'modele' => 'modele',
+            'annee' => 2023,
+            'kilometrage' => 10000,
+            'prix' => 20000,
+            'puissance' => 150,
+            'motorisation' => 'Essence',
+            'carburant' => 'Essence',
+            'options' => 'options',
+        ]);
+
+        $response = $this->getJson('/api/cars');
+        $response->assertStatus(200);
         $cars=Voiture::all();
         $this->assertNotEmpty($cars);
 
+
+
     }
+
 }
