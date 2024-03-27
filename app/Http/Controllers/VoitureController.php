@@ -15,11 +15,24 @@ class VoitureController extends Controller
 
     public function estimateprix(Request $request)
     {
-        $annee = $request->annee;
-        $kilometrage = $request->kilometrage;
-        $puissance = $request->puissance;
+        $data = $request->validate([
+            'marque' => 'required',
+            'modele' => 'required',
+            'annee' => 'required',
+        ]);
 
-        $estimatedPrice = $annee * 1000 - $kilometrage * 0.1 + $puissance * 500;
-        return response()->json(['estimated_price' => $estimatedPrice]);
+        $similarCars = Voiture::where('marque', $data['marque'])
+            ->where('modele', $data['modele'])
+            ->where('annee', $data['annee'])
+            ->get();
+
+        if ($similarCars->isEmpty()) {
+            return response()->json(['message' => 'No similar cars found'], 404);
+        }
+
+        $totalPrice = $similarCars->sum('prix');
+        $estimatedPrice = $totalPrice / $similarCars->count();
+
+        return response()->json(['estimatedPrice' => $estimatedPrice]);
     }
 }
