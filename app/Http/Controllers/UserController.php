@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Database\Seeders\AdminSeeder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Artisan;
 
 
 class UserController extends Controller
@@ -12,6 +14,17 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
+     public function Seeder()
+     {
+         try {
+             Artisan::call('db:seed', ['--class' => AdminSeeder::class]);
+         } catch (\Exception $e) {
+             return response()->json(['message' => 'Somthig went wrong!']);
+         }
+         if (Artisan::output()) {
+             return response()->json(['message' => 'Admin created successfully!']);
+         }
+     }
     public function index()
     {
         $users=User::all();

@@ -8,6 +8,7 @@ use App\Models\Voiture;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
+use Illuminate\Http\Request;
 
 class UserCrudTest extends TestCase
 {
@@ -78,9 +79,44 @@ class UserCrudTest extends TestCase
         $response->assertStatus(200);
         $cars=Voiture::all();
         $this->assertNotEmpty($cars);
-
-
-
     }
+
+    public function test_estimate_prix()
+    {
+        Voiture::create([
+            'marque' => 'Toyota',
+            'modele' => 'Corolla',
+            'annee' => 2020,
+            'prix' => 20000,
+        ]);
+
+        Voiture::create([
+            'marque' => 'Toyota',
+            'modele' => 'Corolla',
+            'annee' => 2020,
+            'prix' => 22000,
+        ]);
+
+        Voiture::create([
+            'marque' => 'Toyota',
+            'modele' => 'Corolla',
+            'annee' => 2020,
+            'prix' => 24000,
+        ]);
+
+        $request = [
+            'marque' => 'Toyota',
+            'modele' => 'Corolla',
+            'annee' => 2020,
+        ];
+        $response = $this->postJson('/api/estimateprix', $request);
+
+        $response->assertStatus(200);
+        $content = $response->json();
+
+        $this->assertArrayHasKey('estimatedPrice', $content);
+        $this->assertEquals(22000, $content['estimatedPrice']);
+    }
+
 
 }
